@@ -1,3 +1,6 @@
+# Built application files and Maven
+target/
+
 # Compiled class file
 *.class
 
