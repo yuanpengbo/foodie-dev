@@ -1,12 +1,19 @@
 package org.yuan.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.yuan.pojo.Users;
 import org.yuan.pojo.bo.UserBO;
 import org.yuan.service.UserService;
 import org.yuan.utils.JSONResult;
+import org.yuan.utils.MD5Utils;
 
+import java.util.Optional;
+
+@Api(value = "注册登录",tags = {"用户注册登录相关接口"})
 @RestController
 @RequestMapping("passport")
 public class PassportController {
@@ -14,6 +21,7 @@ public class PassportController {
     @Autowired
     public UserService userService;
 
+    @ApiOperation(value = "用户名是否存在",notes = "用户名是否存在1",httpMethod = "GET")
     @GetMapping("/usernameIsExist")
     public JSONResult usernameIsExist(@RequestParam String username){
 
@@ -24,14 +32,15 @@ public class PassportController {
 
         //2.查找注册的用户名是否存在
         boolean isExist = userService.queryUsernameIsExist(username);
-
         if(isExist){
-            JSONResult.errorMsg("用户名已存在");;
+            return JSONResult.errorMsg("用户名已存在");
         }
+
         //3.请求成功，用户没有重复
         return JSONResult.ok();
     }
 
+    @ApiOperation(value = "用户注册",notes = "用户注册1",httpMethod = "POST")
     @PostMapping("/regist")
     public JSONResult regist(@RequestBody UserBO userBO){
 
@@ -66,5 +75,31 @@ public class PassportController {
         //4.实现注册
         userService.createUser(userBO);
         return JSONResult.ok();
+    }
+
+    @ApiOperation(value = "用户登录",notes = "用户登录",httpMethod = "POST")
+    @PostMapping("/login")
+    public JSONResult login(@RequestBody UserBO userBO) throws Exception {
+
+        String username = userBO.getUsername();
+        String password = userBO.getPassword();
+
+
+        //1.判断用户密码不能为空
+        if (StringUtils.isBlank(username)
+                || StringUtils.isBlank(password)){
+            return JSONResult.errorMsg("用户名密码不能为空");
+        }
+
+        //4.实现登录
+        Users user = userService.queryUserForLogin(username,
+                MD5Utils.getMD5Str(password));
+
+        //判断是否登录成功
+        if (!Optional.ofNullable(user).isPresent()){
+            return JSONResult.errorMsg("用户名密码不正确");
+        }
+
+        return JSONResult.ok(user);
     }
 }
