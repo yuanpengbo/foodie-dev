@@ -8,9 +8,13 @@ import org.springframework.web.bind.annotation.*;
 import org.yuan.pojo.Users;
 import org.yuan.pojo.bo.UserBO;
 import org.yuan.service.UserService;
+import org.yuan.utils.CookieUtils;
 import org.yuan.utils.JSONResult;
+import org.yuan.utils.JsonUtils;
 import org.yuan.utils.MD5Utils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
 @Api(value = "注册登录",tags = {"用户注册登录相关接口"})
@@ -42,7 +46,9 @@ public class PassportController {
 
     @ApiOperation(value = "用户注册",notes = "用户注册1",httpMethod = "POST")
     @PostMapping("/regist")
-    public JSONResult regist(@RequestBody UserBO userBO){
+    public JSONResult regist(@RequestBody UserBO userBO,
+                             HttpServletRequest request,
+                             HttpServletResponse response){
 
         String username = userBO.getUsername();
         String password = userBO.getPassword();
@@ -73,13 +79,19 @@ public class PassportController {
         }
 
         //4.实现注册
-        userService.createUser(userBO);
+        Users user = userService.createUser(userBO);
+
+        CookieUtils.setCookie(request,response,"user",
+                JsonUtils.objectToJson(user),true);
+
         return JSONResult.ok();
     }
 
     @ApiOperation(value = "用户登录",notes = "用户登录",httpMethod = "POST")
     @PostMapping("/login")
-    public JSONResult login(@RequestBody UserBO userBO) throws Exception {
+    public JSONResult login(@RequestBody UserBO userBO,
+                            HttpServletRequest request,
+                            HttpServletResponse response) throws Exception {
 
         String username = userBO.getUsername();
         String password = userBO.getPassword();
@@ -95,6 +107,9 @@ public class PassportController {
         Users user = userService.queryUserForLogin(username,
                 MD5Utils.getMD5Str(password));
 
+
+        CookieUtils.setCookie(request,response,"user",
+                JsonUtils.objectToJson(user),true);
         //判断是否登录成功
         if (!Optional.ofNullable(user).isPresent()){
             return JSONResult.errorMsg("用户名密码不正确");
@@ -102,4 +117,18 @@ public class PassportController {
 
         return JSONResult.ok(user);
     }
+
+    @ApiOperation(value = "用户登录",notes = "用户登录",httpMethod = "POST")
+    @PostMapping("/logout")
+    public JSONResult login(@RequestParam String userId,
+                            HttpServletRequest request,
+                            HttpServletResponse response) throws Exception {
+        // 清除cookie
+        CookieUtils.deleteCookie(request,response,"user");
+
+        //TODO 清除购物车
+        //TODO 清除分布式用户信息
+        return JSONResult.ok();
+    }
+
 }
