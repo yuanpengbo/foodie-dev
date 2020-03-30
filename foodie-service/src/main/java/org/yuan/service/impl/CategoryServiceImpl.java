@@ -8,10 +8,13 @@ import org.yuan.mapper.CategoryMapper;
 import org.yuan.mapper.CategoryMapperCustom;
 import org.yuan.pojo.Category;
 import org.yuan.pojo.vo.CategoryVO;
+import org.yuan.pojo.vo.NewItemsVo;
 import org.yuan.service.CategoryService;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -33,5 +36,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryVO> getSubCatList(Integer rootCatId) {
         return categoryMapperCustom.getSubCatList(rootCatId);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public List<NewItemsVo> getSixNewItemLazy(Integer rootCatId) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("rootCatId",rootCatId);
+        return categoryMapperCustom.getSixNewItemLazy(param);
     }
 }

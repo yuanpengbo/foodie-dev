@@ -11,6 +11,7 @@ import org.yuan.enums.YesOrNo;
 import org.yuan.pojo.Carousel;
 import org.yuan.pojo.Category;
 import org.yuan.pojo.vo.CategoryVO;
+import org.yuan.pojo.vo.NewItemsVo;
 import org.yuan.service.CarouselService;
 import org.yuan.service.CategoryService;
 import org.yuan.utils.JSONResult;
@@ -57,5 +58,18 @@ public class IndexController {
         }
         List<CategoryVO> subCatList = categoryService.getSubCatList(rootCatId);
         return JSONResult.ok(subCatList);
+    }
+
+
+    @ApiOperation(value = "查询每个一级分类下的最新六条商品",notes = "查询每个一级分类下的最新六条商品",httpMethod = "GET")
+    @GetMapping("/sixNewItems/{rootCatId}")
+    public JSONResult sixNewItems(
+            @ApiParam(name="rootCatId",value = "一级分类ID",required = true)
+            @PathVariable Integer rootCatId) {
+        if(!Optional.ofNullable(rootCatId).isPresent()){
+            return JSONResult.errorMsg("分类不存在");
+        }
+        List<NewItemsVo> sixNewItemLazy = categoryService.getSixNewItemLazy(rootCatId);
+        return JSONResult.ok(sixNewItemLazy);
     }
 }
