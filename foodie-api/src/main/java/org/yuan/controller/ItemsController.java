@@ -83,4 +83,71 @@ public class ItemsController extends BaseController{
         PagedGridResult pagedGridResult = itemService.queryPagedComments(itemId, level, page, pageSize);
         return JSONResult.ok(pagedGridResult);
     }
+
+    @ApiOperation(value = "商品搜索列表",notes = "商品搜索列表" ,httpMethod = "GET")
+    @GetMapping("/search")
+    public JSONResult search(
+            @ApiParam(name = "keywords" ,value = "关键字",required = true)
+            @RequestParam String keywords,
+            @ApiParam(name = "sort" ,value = "排序",required = false)
+                    String sort,
+            @ApiParam(name = "page" ,value = "查询第几页",required = false)
+                    Integer page,
+            @ApiParam(name = "pageSize" ,value = "分页的每一页显示条数",required = false)
+                    Integer pageSize){
+
+        if(StringUtils.isBlank(keywords)){
+            return JSONResult.errorMsg(null);
+        }
+
+        if(!Optional.ofNullable(page).isPresent()){
+            page = 1;
+        }
+
+        if(!Optional.ofNullable(pageSize).isPresent()){
+            page = PAGE_SIZE;
+        }
+        PagedGridResult pagedGridResult = itemService.searchItems(keywords, sort, page, pageSize);
+        return JSONResult.ok(pagedGridResult);
+    }
+
+    @ApiOperation(value = "通过三级分类ID搜索山坡列表",notes = "通过三级分类ID搜索山坡列表" ,httpMethod = "GET")
+    @GetMapping("/catItems")
+    public JSONResult catItems(
+            @ApiParam(name = "catId" ,value = "三级分类ID",required = true)
+            @RequestParam Integer catId,
+            @ApiParam(name = "sort" ,value = "排序",required = false)
+                    String sort,
+            @ApiParam(name = "page" ,value = "查询第几页",required = false)
+                    Integer page,
+            @ApiParam(name = "pageSize" ,value = "分页的每一页显示条数",required = false)
+                    Integer pageSize){
+
+        if(!Optional.ofNullable(catId).isPresent()){
+            return JSONResult.errorMsg(null);
+        }
+
+        if(!Optional.ofNullable(page).isPresent()){
+            page = 1;
+        }
+
+        if(!Optional.ofNullable(pageSize).isPresent()){
+            page = PAGE_SIZE;
+        }
+        PagedGridResult pagedGridResult = itemService.searchItemsByThirdCat(catId, sort, page, pageSize);
+        return JSONResult.ok(pagedGridResult);
+    }
+
+    @ApiOperation(value = "根据商品IDs更新商品信息" ,notes = "根据商品IDs更新商品信息" ,httpMethod = "GET")
+    @GetMapping("/refresh")
+    public JSONResult refresh(
+            @ApiParam(value = "拼接的规格Ids" ,name = "itemSpecIds",required = true,example = "100,200,300")
+            @RequestParam  String itemSpecIds){
+
+        if(StringUtils.isBlank(itemSpecIds)){
+            return JSONResult.errorMsg("");
+        }
+        return JSONResult.ok(itemService.queryItemsBySpecIds(itemSpecIds));
+    }
+
 }

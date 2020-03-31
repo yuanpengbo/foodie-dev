@@ -2,6 +2,7 @@ package org.yuan.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -11,15 +12,15 @@ import org.yuan.mapper.*;
 import org.yuan.pojo.*;
 import org.yuan.pojo.vo.CommentLevelCountsVO;
 import org.yuan.pojo.vo.ItemCommentVo;
+import org.yuan.pojo.vo.SearchItemVO;
+import org.yuan.pojo.vo.ShopCartVO;
 import org.yuan.service.ItemService;
 import org.yuan.utils.DesensitizationUtil;
 import org.yuan.utils.PagedGridResult;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.lang.reflect.Array;
+import java.util.*;
 
 @Service
 public class ItemServiceImpl implements ItemService {
@@ -121,5 +122,43 @@ public class ItemServiceImpl implements ItemService {
         grid.setRecords(pageList.getTotal());
         return grid;
     }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public PagedGridResult searchItems(String keywords, String sort, Integer page, Integer pageSize) {
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("keywords",keywords);
+        paramsMap.put("sort",sort);
+        /**
+         * page: 第几页
+         * pageSize: 每页显示条数
+         */
+        PageHelper.startPage(page, pageSize);
+        List<SearchItemVO> searchItemVOS = itemsMapperCustom.searchItems(paramsMap);
+        return setterPagedGrid(searchItemVOS,page);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public PagedGridResult searchItemsByThirdCat(Integer catId, String sort, Integer page, Integer pageSize) {
+        Map<String,Object> paramsMap = new HashMap<>();
+        paramsMap.put("catId",catId);
+        paramsMap.put("sort",sort);
+        /**
+         * page: 第几页
+         * pageSize: 每页显示条数
+         */
+        PageHelper.startPage(page, pageSize);
+        List<SearchItemVO> searchItemVOS = itemsMapperCustom.searchItemsByThirdCat(paramsMap);
+        return setterPagedGrid(searchItemVOS,page);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public List<ShopCartVO> queryItemsBySpecIds(String specIds) {
+        List<String> ids = Arrays.asList(specIds.split(","));
+        return itemsMapperCustom.queryItemsBySpecIds(ids);
+    }
+
 
 }

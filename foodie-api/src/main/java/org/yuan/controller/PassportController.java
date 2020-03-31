@@ -83,7 +83,8 @@ public class PassportController {
 
         CookieUtils.setCookie(request,response,"user",
                 JsonUtils.objectToJson(user),true);
-
+        // TODO 生成用户token ,存入redis会话
+        //TODO 同步购物车
         return JSONResult.ok();
     }
 
@@ -115,6 +116,8 @@ public class PassportController {
             return JSONResult.errorMsg("用户名密码不正确");
         }
 
+        // TODO 生成用户token ,存入redis会话
+        //TODO 同步购物车
         return JSONResult.ok(user);
     }
 

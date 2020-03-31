@@ -1,10 +1,7 @@
 package org.yuan.service;
 
 import org.yuan.pojo.*;
-import org.yuan.pojo.vo.CategoryVO;
-import org.yuan.pojo.vo.CommentLevelCountsVO;
-import org.yuan.pojo.vo.ItemCommentVo;
-import org.yuan.pojo.vo.NewItemsVo;
+import org.yuan.pojo.vo.*;
 import org.yuan.utils.PagedGridResult;
 
 import java.util.List;
@@ -22,4 +19,10 @@ public interface ItemService {
    CommentLevelCountsVO queryCommentCounts(String itemId);
 
    PagedGridResult queryPagedComments(String itemId, Integer level, Integer page, Integer pageSize);
+
+   PagedGridResult searchItems(String keywords, String sort, Integer page, Integer pageSize);
+
+   PagedGridResult searchItemsByThirdCat(Integer catId, String sort, Integer page, Integer pageSize);
+
+   List<ShopCartVO> queryItemsBySpecIds(String specIds);
 }
