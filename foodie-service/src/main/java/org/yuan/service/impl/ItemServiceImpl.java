@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.yuan.enums.CommentLevel;
+import org.yuan.enums.YesOrNo;
 import org.yuan.mapper.*;
 import org.yuan.pojo.*;
 import org.yuan.pojo.vo.CommentLevelCountsVO;
@@ -158,6 +159,33 @@ public class ItemServiceImpl implements ItemService {
     public List<ShopCartVO> queryItemsBySpecIds(String specIds) {
         List<String> ids = Arrays.asList(specIds.split(","));
         return itemsMapperCustom.queryItemsBySpecIds(ids);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public ItemsSpec queryItemSpecById(String specId) {
+        return itemsSpecMapper.selectByPrimaryKey(specId);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public String queryItemMainImgUrlById(String itemId) {
+        ItemsImg itemsImg = new ItemsImg();
+        itemsImg.setItemId(itemId);
+        itemsImg.setIsMain(YesOrNo.YES.type);
+        ItemsImg result = itemsImgMapper.selectOne(itemsImg);
+        return Optional.ofNullable(result).orElse(new ItemsImg()).getUrl();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void decreaseItemSpecStock(String specId, Integer buyCounts) {
+        //TODO 需要分布式锁 控制
+
+        int result =  itemsMapperCustom.decreaseItemSpecStock(specId,buyCounts);
+        if(result != 1){
+            throw new RuntimeException("订单失败，库存不足");
+        }
     }
 
 
