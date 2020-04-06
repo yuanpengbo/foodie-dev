@@ -13,6 +13,8 @@ import org.yuan.mapper.OrderStatusMapper;
 import org.yuan.mapper.OrdersMapper;
 import org.yuan.pojo.*;
 import org.yuan.pojo.bo.SubmitOrderBO;
+import org.yuan.pojo.vo.MerchantOrdersVO;
+import org.yuan.pojo.vo.OrderVO;
 import org.yuan.service.AddressService;
 import org.yuan.service.ItemService;
 import org.yuan.service.OrderService;
@@ -20,6 +22,7 @@ import org.yuan.service.OrderService;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 
@@ -46,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public String createOrder(SubmitOrderBO submitOrderBO) {
+    public OrderVO createOrder(SubmitOrderBO submitOrderBO) {
         String userId = submitOrderBO.getUserId();
         String addressId = submitOrderBO.getAddressId();
         String itemSpecIds = submitOrderBO.getItemSpecIds();
@@ -132,7 +135,28 @@ public class OrderServiceImpl implements OrderService {
 
         orderStatusMapper.insert(waitPayOrderStatus);
 
+        MerchantOrdersVO merchantOrdersVO = new MerchantOrdersVO();
+        merchantOrdersVO.setMerchantOrderId(orders.getId());
+        merchantOrdersVO.setMerchantUserId(userId);
+        merchantOrdersVO.setAmount(realPyAmount.get() + postAmount);
+        merchantOrdersVO.setPayMethod(payMethod);
+//        merchantOrdersVO.setReturnUrl();
 
-        return orders.getId();
+        return new OrderVO(orders.getId(),merchantOrdersVO);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void updateOrderStatus(String orderId, Integer orderStatus) {
+        OrderStatus paidStatus = new OrderStatus();
+        paidStatus.setOrderId(orderId);
+        paidStatus.setOrderStatus(orderStatus);
+        paidStatus.setPayTime(new Date());
+        orderStatusMapper.updateByPrimaryKey(paidStatus);
+    }
+
+    @Override
+    public OrderStatus queryOrderStatusById(String orderId) {
+        return orderStatusMapper.selectByPrimaryKey(orderId);
     }
 }
