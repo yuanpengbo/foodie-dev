@@ -18,6 +18,7 @@ import org.yuan.pojo.vo.OrderVO;
 import org.yuan.service.AddressService;
 import org.yuan.service.ItemService;
 import org.yuan.service.OrderService;
+import org.yuan.utils.DateUtil;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -155,8 +156,33 @@ public class OrderServiceImpl implements OrderService {
         orderStatusMapper.updateByPrimaryKey(paidStatus);
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public OrderStatus queryOrderStatusById(String orderId) {
         return orderStatusMapper.selectByPrimaryKey(orderId);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    @Override
+    public void closeOrders() {
+        OrderStatus queryOrders = new OrderStatus();
+        queryOrders.setOrderStatus(OrderStatusEnum.WAIT_PAY.type);
+        List<OrderStatus> list = orderStatusMapper.select(queryOrders);
+        list.stream().forEach(orderStatus->{
+            Date createdTime = orderStatus.getCreatedTime();
+            int days = DateUtil.daysBetween(createdTime, new Date());
+            if(days >= 1){
+                doCloseOrder(orderStatus.getOrderId());
+            }
+        });
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    private void doCloseOrder(String OrderId){
+        OrderStatus closeOrder = new OrderStatus();
+        closeOrder.setOrderId(OrderId);
+        closeOrder.setOrderStatus(OrderStatusEnum.CLOSE.type);
+        closeOrder.setCloseTime(new Date());
+        orderStatusMapper.updateByPrimaryKeySelective(closeOrder);
     }
 }

@@ -17,4 +17,6 @@ public interface OrderService {
 
     OrderStatus queryOrderStatusById(String orderId);
 
+    void closeOrders();
+
 }
