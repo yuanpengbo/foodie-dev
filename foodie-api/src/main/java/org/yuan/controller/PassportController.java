@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.yuan.pojo.Users;
 import org.yuan.pojo.bo.UserBO;
+import org.yuan.resource.FileUpload;
 import org.yuan.service.UserService;
 import org.yuan.utils.CookieUtils;
 import org.yuan.utils.JSONResult;
