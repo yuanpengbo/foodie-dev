@@ -19,6 +19,7 @@ import org.yuan.pojo.bo.conter.UsersBO;
 import org.yuan.resource.FileUpload;
 import org.yuan.service.center.UserService;
 import org.yuan.utils.CookieUtils;
+import org.yuan.utils.DateUtil;
 import org.yuan.utils.JSONResult;
 import org.yuan.utils.JsonUtils;
 
@@ -101,6 +102,14 @@ public class CenterUserController extends BaseController {
         String[] filenameArr = filename.split("\\.");
 
         String suffix = filenameArr[filenameArr.length - 1];
+
+        if(!suffix.equalsIgnoreCase("jpg") &&
+                !suffix.equalsIgnoreCase("png") &&
+                !suffix.equalsIgnoreCase("jpeg")
+        ){
+            return JSONResult.errorMsg("图片格式不正确");
+        }
+
         //重新定义文件名
         String newFileName = "face-" + userId + "." + suffix;
 
@@ -123,7 +132,8 @@ public class CenterUserController extends BaseController {
             e.printStackTrace();
         }
 
-        String faceUrl = fileUpload.getImageServerUrl() + "/" +userId + "/" + newFileName;
+        String faceUrl = fileUpload.getImageServerUrl() + "/" +userId + "/" + newFileName+
+                "?t="+ DateUtil.getCurrentDateString(DateUtil.DATE_PATTERN);
 
         Users users = userService.updateUserFace(userId, faceUrl);
 
