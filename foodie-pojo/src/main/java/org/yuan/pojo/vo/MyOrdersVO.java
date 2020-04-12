@@ -10,8 +10,31 @@ public class MyOrdersVO {
     private Integer  payMethod;
     private Integer  realPayAmount;
     private Integer  postAmount;
+    private Integer isComment;
     private Integer  orderStatus;
     private List<MySubOrderItemVO> subOrderItemList;
+
+    @Override
+    public String toString() {
+        return "MyOrdersVO{" +
+                "orderId='" + orderId + '\'' +
+                ", createdTime=" + createdTime +
+                ", payMethod=" + payMethod +
+                ", realPayAmount=" + realPayAmount +
+                ", postAmount=" + postAmount +
+                ", isComment=" + isComment +
+                ", orderStatus=" + orderStatus +
+                ", subOrderItemList=" + subOrderItemList +
+                '}';
+    }
+
+    public Integer getIsComment() {
+        return isComment;
+    }
+
+    public void setIsComment(Integer isComment) {
+        this.isComment = isComment;
+    }
 
     public String getOrderId() {
         return orderId;
@@ -69,16 +92,4 @@ public class MyOrdersVO {
         this.subOrderItemList = subOrderItemList;
     }
 
-    @Override
-    public String toString() {
-        return "MyOrdersVO{" +
-                "orderId='" + orderId + '\'' +
-                ", createdTime=" + createdTime +
-                ", payMethod=" + payMethod +
-                ", realPayAmount=" + realPayAmount +
-                ", postAmount=" + postAmount +
-                ", orderStatus=" + orderStatus +
-                ", subOrderItemList=" + subOrderItemList +
-                '}';
-    }
 }
