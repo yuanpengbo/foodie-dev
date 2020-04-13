@@ -15,6 +15,7 @@ import org.yuan.mapper.OrdersMapperCustom;
 import org.yuan.pojo.OrderStatus;
 import org.yuan.pojo.Orders;
 import org.yuan.pojo.vo.MyOrdersVO;
+import org.yuan.pojo.vo.OrderStatusCountsVO;
 import org.yuan.service.center.OrderService;
 import org.yuan.utils.PagedGridResult;
 import tk.mybatis.mapper.entity.Example;
@@ -105,6 +106,7 @@ public class OrderServiceImpl implements OrderService {
         return ordersMapper.updateByExampleSelective(orders,example) > 0;
     }
 
+
     private PagedGridResult setterPagedGrid(List<?> list, Integer page){
         PageInfo<?> pageList = new PageInfo<>(list);
         PagedGridResult grid = new PagedGridResult();
@@ -113,5 +115,42 @@ public class OrderServiceImpl implements OrderService {
         grid.setTotal(pageList.getPages());
         grid.setRecords(pageList.getTotal());
         return grid;
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public OrderStatusCountsVO getMyOrderStatusCounts(String userId) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("userId",userId);
+        param.put("orderStatus",OrderStatusEnum.WAIT_PAY.type);
+        int waitPauCounts = ordersMapperCustom.getMyOrderStatusCounts(param);
+
+        param.put("orderStatus",OrderStatusEnum.WAIT_DELIVER.type);
+        Integer waitDeliverCounts = ordersMapperCustom.getMyOrderStatusCounts(param);
+
+        param.put("orderStatus",OrderStatusEnum.WAIT_RECEIVE.type);
+        Integer waitReceiveCounts = ordersMapperCustom.getMyOrderStatusCounts(param);
+
+        param.put("orderStatus",OrderStatusEnum.SUCCESS.type);
+        param.put("isComment",YesOrNo.NO.type);
+        Integer waitCommentCounts = ordersMapperCustom.getMyOrderStatusCounts(param);
+
+        return new OrderStatusCountsVO(
+                waitPauCounts,
+                waitDeliverCounts,
+                waitReceiveCounts,
+                waitCommentCounts);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public PagedGridResult geOrdersTrend(String userId, Integer page, Integer pageSize) {
+
+        Map<String, Object> param = new HashMap<>();
+        param.put("userId",userId);
+
+        PageHelper.startPage(page,pageSize);
+        List<OrderStatus> orderStatusList = ordersMapperCustom.geMyOrderTrend(param);
+        return setterPagedGrid(orderStatusList,page);
     }
 }

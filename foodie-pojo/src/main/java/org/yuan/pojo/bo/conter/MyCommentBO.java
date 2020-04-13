@@ -6,7 +6,7 @@ public class MyCommentBO {
     private String itemName;
     private String itemSpecId;
     private String itemSpecName;
-    private String commentLevel;
+    private Integer commentLevel;
     private String content;
 
     public String getCommentId() {
@@ -49,11 +49,11 @@ public class MyCommentBO {
         this.itemSpecName = itemSpecName;
     }
 
-    public String getCommentLevel() {
+    public Integer getCommentLevel() {
         return commentLevel;
     }
 
-    public void setCommentLevel(String commentLevel) {
+    public void setCommentLevel(Integer commentLevel) {
         this.commentLevel = commentLevel;
     }
 

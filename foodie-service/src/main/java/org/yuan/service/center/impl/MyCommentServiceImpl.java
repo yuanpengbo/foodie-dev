@@ -1,5 +1,7 @@
 package org.yuan.service.center.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,7 +13,9 @@ import org.yuan.pojo.OrderItems;
 import org.yuan.pojo.OrderStatus;
 import org.yuan.pojo.Orders;
 import org.yuan.pojo.bo.conter.MyCommentBO;
+import org.yuan.pojo.vo.MyCommentVO;
 import org.yuan.service.center.MyCommentService;
+import org.yuan.utils.PagedGridResult;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -71,6 +75,26 @@ public class MyCommentServiceImpl implements MyCommentService {
         orderStatus.setOrderId(orderId);
         orderStatus.setCommentTime(new Date());
         orderStatusMapper.updateByPrimaryKeySelective(orderStatus);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public PagedGridResult query(String userId, Integer page, Integer pageSize) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("userId",userId);
+        PageHelper.startPage(page,pageSize);
+        List<MyCommentVO> myCommentVOS = itemsCommentsMapperCustom.queryMyComments(param);
+        return setterPagedGrid(myCommentVOS,page);
+    }
+
+    private PagedGridResult setterPagedGrid(List<?> list, Integer page){
+        PageInfo<?> pageList = new PageInfo<>(list);
+        PagedGridResult grid = new PagedGridResult();
+        grid.setPage(page);
+        grid.setRows(list);
+        grid.setTotal(pageList.getPages());
+        grid.setRecords(pageList.getTotal());
+        return grid;
     }
 
 }

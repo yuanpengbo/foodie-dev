@@ -1,6 +1,7 @@
 package org.yuan.service.center;
 
 import org.yuan.pojo.Orders;
+import org.yuan.pojo.vo.OrderStatusCountsVO;
 import org.yuan.utils.PagedGridResult;
 
 public interface OrderService {
@@ -14,4 +15,8 @@ public interface OrderService {
     boolean updateReceiveOrderStatus(String orderId);
 
     boolean deleteOrder(String userId,String orderId);
+
+    OrderStatusCountsVO getMyOrderStatusCounts(String userId);
+
+    PagedGridResult geOrdersTrend(String userId, Integer page, Integer pageSize);
 }

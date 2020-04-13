@@ -3,6 +3,7 @@ package org.yuan.controller.center;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.CollectionUtils;
@@ -17,6 +18,7 @@ import org.yuan.pojo.bo.conter.MyCommentBO;
 import org.yuan.service.center.MyCommentService;
 import org.yuan.service.center.OrderService;
 import org.yuan.utils.JSONResult;
+import org.yuan.utils.PagedGridResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -84,4 +86,22 @@ public class MyCommentController {
 
         return JSONResult.ok();
     }
+
+    @ApiOperation(value = "查询评价列表",notes = "查询评价列表",httpMethod = "POST")
+    @PostMapping("query")
+    public JSONResult query(
+            @ApiParam(value = "userId",name = "用户id",required = true)
+            String userId,
+            Integer page,Integer pageSize){
+        if(StringUtils.isBlank(userId)){
+            return JSONResult.errorMsg(null);
+        }
+
+        if(!Optional.ofNullable(page).isPresent()){
+            page = 1;
+        }
+        PagedGridResult comments = myCommentService.query(userId, page, pageSize);
+        return JSONResult.ok(comments);
+    }
+
 }

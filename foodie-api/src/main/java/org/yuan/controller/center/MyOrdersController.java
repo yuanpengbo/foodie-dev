@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.yuan.controller.BaseController;
 import org.yuan.pojo.Orders;
+import org.yuan.pojo.vo.OrderStatusCountsVO;
 import org.yuan.service.center.OrderService;
 import org.yuan.utils.JSONResult;
 import org.yuan.utils.PagedGridResult;
@@ -116,5 +117,38 @@ public class MyOrdersController extends BaseController {
         return JSONResult.ok();
     }
 
+    @ApiOperation(value = "获得订单状态数概况",notes = "获得订单状态数概况",httpMethod = "POST")
+    @PostMapping("statusCounts")
+    public JSONResult statusCounts(
+            @ApiParam(value = "userId",name = "用户Id",required = true)
+            String userId){
+
+        if(StringUtils.isBlank(userId)){
+            return JSONResult.errorMsg(null);
+        }
+        OrderStatusCountsVO myOrderStatusCounts = orderService.getMyOrderStatusCounts(userId);
+        return JSONResult.ok(myOrderStatusCounts);
+    }
+
+    @ApiOperation(value = "获得订单动向",notes = "获得订单动向",httpMethod = "POST")
+    @PostMapping("trend")
+    public JSONResult trend(
+            @ApiParam(value = "userId",name = "用户Id",required = true)
+                    String userId,
+            Integer page,Integer pageSize){
+
+        if(StringUtils.isBlank(userId)){
+            return JSONResult.errorMsg(null);
+        }
+        if(!Optional.ofNullable(page).isPresent()){
+            page = 1;
+        }
+
+        if(!Optional.ofNullable(pageSize).isPresent()){
+            page = COMMENT_PAGE_SIZE;
+        }
+        PagedGridResult pagedGridResult = orderService.geOrdersTrend(userId, page, pageSize);
+        return JSONResult.ok(pagedGridResult);
+    }
 
 }
